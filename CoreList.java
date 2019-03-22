@@ -19,7 +19,7 @@
  *
  * MIT License
  *
- * Copyright (c) [year] [fullname]
+ * Copyright (c) [2019] [Heinrich Kreuser]
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -69,6 +69,13 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
      */
     public int size() {
         return N;
+    }
+
+    /**
+     * @return true if the list is empty
+     */
+    public boolean isEmpty() {
+        return N == 0;
     }
 
     // Clears the list, might as well construct a new list
