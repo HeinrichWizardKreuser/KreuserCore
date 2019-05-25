@@ -1,25 +1,29 @@
-import java.util.Iterator;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /*******************************************************************************
  *
- * CoreList is a custom implimentation of an ArrayList-like iterable
+ * CoreList is a custom implementation of an ArrayList-like iterable
  * Collection/List.
  *
- * The library offers some methods that ArrayList doesn't: max() returns the
- * maximum in the list. min() returns the minimum in the list. getRandom()
- * returns a random Key in the list. removeKey and removeIndex are seperate to
- * avoid the case of an <Integer> list. ConcurrentModificationException fix:
- * You are able to remove elements during for-each enhanced forloop iterations
- * without experiencing errors. otherThanKey() returns an iterable list of all
- * keys except the specified. sorted() returns a sorted version of the list in
- * the order specified ("min" or "max")
+ * The library offers some methods that ArrayList doesn't:
+ *  * max() returns the maximum in the list.
+ *  * min() returns the minimum in the list.
+ *  * getRandom() returns a random Key in the list.
+ *  * removeKey and removeIndex are separate to avoid the case of an list.
+ *  * ConcurrentModificationException fix: You are able to remove elements
+ *    during for-each enhanced forloop iterations without experiencing errors.
+ *  * otherThanKey() returns an iterable list of all keys except the specified.
+ *  * sorted() returns a sorted version of the list in the order specified
+ *    ("min" or "max").
  *
- * @param <K> is the data type of the Keys
+ * @param <K> the data type of the Keys
  *
  * @author Heinrich Kreuser
  *
- * Date: 21 March 2019
+ * Date: 25 May 2019
  *
  *         MIT License
  *
@@ -54,11 +58,11 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   private int n;
 
   /**
-   * Constructor using a pre-existing array
+   * Constructor using a pre-existing array.
    *
-   * @param arr is the array to construct the list from
+   * @param arr the array to construct the list from
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public CoreList(K[] arr) {
     this.n = arr.length;
     this.list = (K[]) new Comparable[10 * (n / 10) + 10];
@@ -73,7 +77,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Constructor for when accidently including an integer is added a parameter
+   * Constructor for when accidently including an integer is added a parameter.
    * @param i does nothing
    */
   public CoreList(int i) {
@@ -81,7 +85,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Retrieves the amount of elements in the list
+   * Retrieves the amount of elements in the list.
    *
    * @return the size of the list
    */
@@ -90,7 +94,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Checks whether the list contains zero elements
+   * Checks whether the list contains zero elements.
    *
    * @return true if the list is empty
    */
@@ -98,20 +102,22 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
     return n == 0;
   }
 
-  /** Clears the list, might as well construct a new list */
-  @SuppressWarnings("unchecked")
+  /**
+   * Clears the list, might as well construct a new list.
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void clear() {
     this.list = (K[]) new Comparable[10];
     this.n = 0;
   }
 
   /**
-   * Adds the given key to the list
+   * Adds the given key to the list.
    *
-   * @param k is a given key added to the list
+   * @param k a given key added to the list
    */
-  @SuppressWarnings("unchecked")
-  public void add(K k) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+   public void add(K k) {
     if (this.n == list.length) {
       K[] newList = (K[]) new Comparable[n + 10];
       for (int i = 0; i < n; i++) {
@@ -124,12 +130,12 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Adds the given key at the given index and moves everything else up
+   * Adds the given key at the given index and moves everything else up.
    *
-   * @param k is a given key added to the list
-   * @param index is a given index to add the key at
+   * @param k a given key added to the list
+   * @param index a given index to add the key at
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void addAt(K k, int index) {
     if (this.n == list.length) {
       K[] newList = (K[]) new Comparable[n + 10];
@@ -147,14 +153,13 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Removes the first appearance of the specified key from the list
+   * Removes the first appearance of the specified key from the list.
    *
-   * @param k is removed from the list if the list contains it
-   * @return the given key k
+   * @param k the key to be removed from the list if the list contains it
    */
-  public K removeKey(K k) {
+  public void removeKey(K k) {
     if (k == null) {
-      return null;
+      return;
     }
     for (int i = 0; i < n; i++) {
       if (list[i] == k) {
@@ -163,29 +168,30 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
         }
         list[n - 1] = null;
         n--;
-        return k;
+        return;
       }
     }
-    throw new IllegalArgumentException("List doesn't contain element ");
   }
 
   /**
-   * Removes the element at the given index
+   * Removes the element at the given index and returns the key at that index.
    *
-   * @param i is the index removed from the list if it is within bounds
-   * @return the key at the specifeid index after removing it
+   * @param i the index removed from the list if it is within bounds
+   * @return the key at the specified index after removing it
    */
   public K removeIndex(int i) {
     if (i < 0 || n <= i) {
       throw new IndexOutOfBoundsException(i + " for size " + n);
     }
-    return removeKey(list[i]);
+    K k = list[i];
+    removeKey(k);
+    return k;
   }
 
   /**
-   * retrieves the index of the specified key
+   * retrieves the index of the specified key.
    *
-   * @param k is the given key for which we will be searching the index for
+   * @param k the given key for which we will be searching the index for
    * @return the index of the given key if it is contained in the list
    */
   public int indexOf(K k) {
@@ -198,9 +204,9 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Gets the element witht the specified index
+   * Gets the element with the specified index.
    *
-   * @param i is the index of the key we need to retrieve
+   * @param i the index of the key we need to retrieve
    * @return the key at the specified index i
    */
   public K get(int i) {
@@ -211,9 +217,9 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Checks whether the list contains the given key
+   * Checks whether the list contains the given key.
    *
-   * @param k is the key we are searching the list for
+   * @param k the key we are searching the list for
    * @return true if k is contained within the list
    */
   public boolean contains(K k) {
@@ -226,11 +232,11 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Retrieves an array version of the list
+   * Retrieves an array version of the list.
    *
    * @return an array version of the list
    */
-  @SuppressWarnings("unchecked")
+   @SuppressWarnings({"unchecked", "rawtypes"})
   public K[] toArray() {
     K[] arr = (K[]) new Comparable[n];
     for (int i = 0; i < n; i++) {
@@ -240,17 +246,58 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Gets a random element from the list
+   * Gets a random element from the list.
    *
    * @return a random element from the list
    */
   public K getRandom() {
-    int i = (int) (Math.random() * n);
+    int i = randomIndex();
     return list[i];
   }
 
   /**
-   * Gets a sorted version of the list in ascending order
+   * Gets a number between 0 and the list size.
+   *
+   * @return a random index from the list
+   */
+  public int randomIndex() {
+    return (int) (Math.random() * n);
+  }
+
+  /**
+   * Gets a random element from the list and then removes it.
+   *
+   * @return a random element from the list
+   */
+  public K removeRandom() {
+    int i = randomIndex();
+    K k = list[i];
+    removeIndex(i);
+    return k;
+  }
+
+  /**
+   * Gets a random element that is not the given key.
+   *
+   * @param k the key that may not be chosen
+   * @return a random element that is not the given key
+   */
+  public K getRandomOtherThan(K k) {
+    int indexOfK = 0;
+    try {
+      indexOfK = indexOf(k);
+    } catch (IllegalArgumentException e) {
+      return list[randomIndex()];
+    }
+    int i = randomIndex();
+    while (i == indexOfK) {
+      i = randomIndex();
+    }
+    return list[i];
+  }
+
+  /**
+   * Gets a sorted version of the list in ascending order.
    *
    * @return a sorted version of the list in ascending order
    */
@@ -259,9 +306,9 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Retrieves a sorted version of the list in the order specified
+   * Retrieves a sorted version of the list in the order specified.
    *
-   * @param order is the specified order in which to sort the list. "min" and
+   * @param order the specified order in which to sort the list. "min" and
    *        "max" will sort the list in asceninding and descending order
    *        respectively
    * @return a sorted version of the list in the specified order
@@ -280,7 +327,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Gets the first element in the list
+   * Gets the first element in the list.
    *
    * @return the first element in the list
    */
@@ -289,7 +336,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Gets the last element in the list
+   * Gets the last element in the list.
    *
    * @return the last element in the list
    */
@@ -298,7 +345,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * retrieves the size-1
+   * Retrieves the size-1.
    *
    * @return the index of the last element in the array
    */
@@ -307,7 +354,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Retrieves the largest element in the list
+   * Retrieves the largest element in the list.
    *
    * @return the key with the largest value in the list
    */
@@ -322,7 +369,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Retrieves the smallest element in the list
+   * Retrieves the smallest element in the list.
    *
    * @return the key with the smallest value in the list
    */
@@ -337,7 +384,7 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
-   * Gets a clone of the list that avoids pointer errors with it's predecessor
+   * Gets a clone of the list that avoids pointer errors with it's predecessor.
    *
    * @return a copy of the list
    */
@@ -350,10 +397,37 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
   }
 
   /**
+   * stream() method for use with lambda expressions such as forEach
+   *
+   * @return the contents of the list as a stream
+   */
+  public Stream<K> stream() {
+    return Arrays.stream(Arrays.copyOf(list, n));
+  }
+
+  /**
+   * Returns a filtered list where all elements fulfill the conditions of the
+   * given predicate
+   *
+   * @param predicate is the Predicate Lambda epression that will return a
+   *        boolean stating whether an element fulfills a condition
+   * @return a corelist of which the elements all meet the predicate requirement
+   */
+  public CoreList<K> filter(Predicate<K> predicate) {
+    CoreList<K> filter = new CoreList<>();
+    for (K k : this) {
+      if (predicate.test(k)) {
+        filter.add(k);
+      }
+    }
+    return filter;
+  }
+
+  /**
    * The iterator for the use of for-each enhanced forloop iteration. It avoids
    * ConcurrentModificationException that is thrown when elements are removed
-   * from the list durind iteration without any extra work required from the
-   * user (like directly) using the class' Iterator
+   * from the list during iteration without any extra work required from the
+   * user (like directly) using the class' Iterator.
    *
    * @return the iterator of the list
    */
@@ -393,72 +467,19 @@ public class CoreList<K extends Comparable<K>> implements Iterable<K> {
 
   /**
    * The iterator for the use of for-each enhanced forloop iteration, but skips
-   * the first appearance of the specified ke. For use when we want to compare
+   * the first appearance of the specified key. For use when we want to compare
    * an element to all other elements and thus reduces the need for the user to
    * add an extra if statement during the iteration. It avoids
    * ConcurrentModificationException that is thrown when elements are removed
    * from the list durind iteration without any extra work required from the
-   * user (like directly) using the class' Iterator)
-   * @param k is the key to skip during iteration
-   * @return the iterator of the list discluding the first appearance of the
+   * user (like directly) using the class' Iterator).
+   * @param k the key to skip during iteration
+   * @return the iterator of the list not including the first appearance of the
    *         specified key
    */
   public Iterable<K> otherThanKey(K k) {
-    return new OtherThanKey(k);
-  }
-
-  /**
-   * OtherThanKey is an iteratble that iterates through the entire list skipping
-   * a specific key once
-   */
-  private class OtherThanKey implements Iterable<K> {
-    private K skipKey;
-
-    /**
-     * Constructs a iterable list that discludes k during iteration
-     *
-     * @param k is the key being skipped
-     */
-    OtherThanKey(K k) {
-      this.skipKey = k;
-    }
-
-    @Override
-    public Iterator<K> iterator() {
-      return new Iterator<K>() {
-
-        private int j = 0;
-        private int last = 0;
-        private K lastElement = null;
-        private int skip = indexOf(skipKey);
-
-        @Override
-        public boolean hasNext() {
-          if (j == skip) {
-            j++;
-          }
-          return j < n;
-        }
-
-        @Override
-        public K next() {
-          // assert that the last index and last element are equal
-          if (lastElement == null || list[last] == lastElement) {
-            last = j;
-            lastElement = list[last];
-            return list[j++];
-          }
-          // if they are not, then return the list[last]
-          lastElement = list[last];
-          j = last;
-          return list[last];
-        }
-
-        @Override
-        public void remove() {
-          // do nothing
-        }
-      };
-    }
+    CoreList<K> copy = copy();
+    copy.removeKey(k);
+    return copy;
   }
 }
