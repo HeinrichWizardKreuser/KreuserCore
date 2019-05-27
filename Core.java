@@ -6,7 +6,9 @@ import java.util.ArrayList;
 // for sorting
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -18,32 +20,6 @@ import static java.util.Map.Entry.comparingByValue;
  * widely used methods for efficiency.
  *
  * @author Heinrich Kreuser
- *
- * Date: 25 May 2019
- *
- *         MIT License
- *
- *         Copyright (c) [2019] [Heinrich Kreuser]
- *
- *         Permission is hereby granted, free of charge, to any person obtaining
- *         a copy of this software and associated documentation files (the
- *         "Software"), to deal in the Software without restriction, including
- *         without limitation the rights to use, copy, modify, merge, publish,
- *         distribute, sublicense, and/or sell copies of the Software, and to
- *         permit persons to whom the Software is furnished to do so, subject to
- *         the following conditions:
- *
- *         The above copyright notice and this permission notice shall be
- *         included in all copies or substantial portions of the Software.
- *
- *         THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- *         EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- *         MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- *         NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- *         BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- *         ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- *         CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *         SOFTWARE.
  ******************************************************************************/
 public class Core {
 
@@ -403,6 +379,21 @@ public class Core {
   }
 
   /**
+   * Checks whether the given values are within one epsilon difference from
+   * each other. If they are, they are considered to be equal. This is for when
+   * number calculations have a slight error.
+   */
+  public static boolean epsilon(double a, double b) {
+    return Math.abs(a-b) < EPSILON;
+  }
+
+  /*
+   * If two values have < EPSILON diifference from each other, they are
+   * considered to be equal
+   */
+  public static final double EPSILON = 1E-6;
+
+  /**
    * Gets us the subtring that lies between the given pattern, example:
    * let string s = "<import>../constants/dna/[time].dna". By calling
    * capture(s, "<", ">") returns us "import".
@@ -435,5 +426,99 @@ public class Core {
       }
     }
     return false;
+  }
+
+  /**
+   * Counts the amount of instances of t in ts
+   *
+   * @param ts the array to check how many are t
+   * @param t is the value to check how many are in the list
+   * @return number of occurences of t in ts
+   */
+  public static <T> int count(T[] ts, T t) {
+    int count = 0;
+    for (T i : ts) {
+      if (i == t) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Retrieves the mininum or maximum value in the given list
+   *
+   * @param ts is the list of elements to find min/max from
+   * @param minMax specifies that we seek the max element (if minMax = "max").
+   *        Else we assume min is wanted
+   * @param comparator the Comparator to be used to compare elements in the list
+   * @return the min or max element in ts
+   */
+  public static <T> T minMax(T[] ts, String minMax, Comparator<T> comparator) {
+    T t = ts[0];
+    int n = ts.length;
+    // max
+    if (minMax.equals("max")) {
+      for (int i = 1; i < n; i++) {
+        if (comparator.compare(t, ts[i]) < 0) {
+          t = ts[i];
+        }
+      }
+      return t;
+    }
+    // min
+    for (int i = 1; i < n; i++) {
+      if (comparator.compare(t, ts[i]) > 0) {
+        t = ts[i];
+      }
+    }
+    return t;
+  }
+
+  /**
+   * Retrieves the mininum or maximum value in the given list
+   *
+   * @param ts is the list of elements to find min/max from
+   * @param minMax specifies that we seek the max element (if minMax = "max").
+   *        Else we assume min is wanted
+   * @return the min or max element in ts
+   */
+  public static <T extends Comparable<T>> T minMax(T[] ts, String minMax) {
+    T t = ts[0];
+    int n = ts.length;
+    // max
+    if (minMax.equals("max")) {
+      for (int i = 1; i < n; i++) {
+        if (t.compareTo(ts[i]) < 0) {
+          t = ts[i];
+        }
+      }
+      return t;
+    }
+    // min
+    for (int i = 1; i < n; i++) {
+      if (t.compareTo(ts[i]) < 0) {
+        t = ts[i];
+      }
+    }
+    return t;
+  }
+
+  /**
+   * Given a list of iterables, it returns an arraylist that contains the
+   * combined elements of all contained within the iterables
+   *
+   * @param iters the list of iterables the client wishes to iterate over
+   * @return the iterator that contains all elements in the iters
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> ArrayList<T> iteratorOver(Iterable<T>... iters) {
+    ArrayList<T> elements = new ArrayList<>(0);
+    for (Iterable<T> iter : iters) {
+      for (T t : iter) {
+        elements.add(t);
+      }
+    }
+    return elements;
   }
 }
