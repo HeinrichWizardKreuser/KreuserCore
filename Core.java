@@ -444,6 +444,11 @@ public class Core {
     }
     return count;
   }
+  
+  /* Returns an array version of the given amount of generic elements */
+  public static <T> T[] arr(T... ts) {
+    return ts;
+  }
 
   /**
    * Retrieves the mininum or maximum value in the given list
