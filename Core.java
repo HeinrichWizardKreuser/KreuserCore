@@ -8,10 +8,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.BiPredicate;
 import static java.util.stream.Collectors.toMap;
 import static java.util.Map.Entry.comparingByValue;
 
@@ -102,6 +105,18 @@ public class Core {
   public static void println(String message) {
     System.out.println(message);
   }
+  public static void println(int i) {
+    System.out.println(i);
+  }
+  public static void println(double d) {
+    System.out.println(d);
+  }
+  public static void println(long l) {
+    System.out.println(l);
+  }
+  public static void println(char c) {
+    System.out.println(c);
+  }
 
   /**
    * The format in which now() returns the current time when called
@@ -161,7 +176,7 @@ public class Core {
       return;
     }
     if (check != correct) {
-      println("FAILED TEST: " + check + " != answer " + check);
+      println("FAILED TEST: " + check + " != answer " + correct);
     }
   }
 
@@ -444,11 +459,6 @@ public class Core {
     }
     return count;
   }
-  
-  /* Returns an array version of the given amount of generic elements */
-  public static <T> T[] arr(T... ts) {
-    return ts;
-  }
 
   /**
    * Retrieves the mininum or maximum value in the given list
@@ -509,121 +519,136 @@ public class Core {
     return t;
   }
 
-  /**
-   * Given a list of iterables, it returns an arraylist that contains the
-   * combined elements of all contained within the iterables
-   *
-   * @param iters the list of iterables the client wishes to iterate over
-   * @return the iterator that contains all elements in the iters
-   */
   @SuppressWarnings("unchecked")
-  public static <T> ArrayList<T> iteratorOver(Iterable<T>... iters) {
-    ArrayList<T> elements = new ArrayList<>(0);
-    for (Iterable<T> iter : iters) {
-      for (T t : iter) {
-        elements.add(t);
+  public static <T> ArrayList<T[]> uniquePairs(ArrayList<T> l) {
+    ArrayList<T[]> uniquePairs = new ArrayList<>(0);
+    int n = l.size();
+    for (int i = 0; i < n; i++) {
+      for (int j = i+1; j < n; j++) {
+        uniquePairs.add((T[])(new Object[]{l.get(i), l.get(j)}));
       }
     }
-    return elements;
-  }public static void main(String[] args) {
-		long time = System.currentTimeMillis();
-		System.out.println(time);
-		char[] c = (time+"").toCharArray();
-		int[] a = new int[10];
-		boolean[] b = new boolean[10];
-		// fill in first
-		a[8] = a[9] = -1;
-		for (int i = 0; i < 8; i++) {
-			int v = c[12-i] - '0';
-			if (!b[v]) {
-				a[i] = v;
-				b[v] = true;
-			} else a[i] = -1;
-		}
-		// fill in rest
-		loop:for (int v = 0; v < 10; v++) {
-			if (b[v]) continue loop;
-				int pos = v;
-				while (a[pos] != -1) {
-					pos = a[pos];
-				} 
-			//	b[v] = true;
-				a[pos] = v;
-			//} 
-		}
-		int[][] r = new int[100][10];
-		for (int res = 0; res < 50; res++) {
-			// 1) index insert
-			int[] d = new int[10]; // new version of a
-			for (int i = 0; i < 10; i++) { 
-				// put a[i] in pos of a[9-i]
-				d[ a[9-i] ] = a[i];
-			}
-			r[2*res] = d;
-			a = d;
-			for (int i = 0; i < res*2; i++) {
-				if (equals(d, r[i])) {
-					p((res*2)+"=="+i);
-				}
-			} 	 	 
-			d = new int[10];// new version of a
-			// index + v + 1 + used
-			b = new boolean[10];
-			for (int i = 0; i < 10; i++) {
-	 		int v = a[i];
-				int pos = (v+i+res*i*i)%10;
-				while (b[pos]) {
-					pos = (pos+1)%10;
-				}
-				b[pos] = true;
-				d[pos] = v;
-			}
-			r[res*2+1] = d;
-			a = d;
-			for (int i = 0; i < res*2+1; i++) {
-				if (equals(d, r[i])) {
-					p((res*2+1)+"=="+i);
-				}
-			} 	 	 
-		} 
-		// print out
-		for (int col = 0; col < 100; col++) {
-			print(r[col]);
-		} 
-	}
-	
-	public static void print(int[] a) {
-		String s = "";
-		int n = a.length;
-		for (int i = 0; i<n;i++){
-			s += "" + a[i];
-		}
-		System.out.println(s);
-	} 
-	
-	public static void print(boolean[] a) {
-		String s = "";
-		int n = a.length;
-		for (int i = 0; i<n;i++){
-			if (a[i]) 
-				s += "t";
-			else
-				s += "f";
-		}
-		System.out.println(s);
-	} 
-	
-	public static void p(String s) {
-	  System.out.println(s);
-	} 
-	
-	public static boolean equals(int[] a, int[] b) {
-			int n = a.length;
-	  for (int i = 0; i < n; i++) {
-	   if (a[i] !=b[i]) {
-	  	 return false;
-				} 
-			} 
-			return true;
-		} 
+    return uniquePairs;
+  }
+
+  /**
+   * Groups nodes in the given graph (in the form of an adjacency list) to nodes
+   * they are adjacent to based on some predicate. If the predicate is simply
+   * a predicate that returns true, then this method does the same as a BFS.
+   * This method is meant for a given graph where the nodes have certain conditions
+   * for whether they should be connected or not, besides simply being adjacent
+   * For instance, an array of integers where cells must be grouped to other
+   * cells if those cells contain the same integer.
+   */
+  public static <T> ArrayList<ArrayList<T>> group(HashMap<T, ArrayList<T>> adj, BiPredicate<T, T> predicate) {
+    ArrayList<T> all = new ArrayList<T>(adj.size());
+    for (T t : adj.keySet()) {
+      all.add(t);
+    }
+    ArrayList<ArrayList<T>> groups = new ArrayList<>(0);
+    while (!all.isEmpty()) {
+      T n = all.remove(all.size()-1);
+      ArrayList<T> group = new ArrayList<>(0);
+      LinkedList<T> q = new LinkedList<>();
+      q.add(n);
+      while (!q.isEmpty()) {
+        T v = q.poll();
+        group.add(v);
+        for (T adjV : adj.get(v)) {
+          if (all.contains(adjV) && predicate.test(adjV, v)) {
+            all.remove(adjV);
+            q.add(adjV);
+          }
+        }
+      }
+      groups.add(group);
+    }
+    return groups;
+  }
+
+
+  /**
+   * Time-based random number generation
+   * @param size the amount of random doubles to generate
+   */
+  public static LinkedList<Double> random(int size) {
+    // create a list of random doubles
+    long time = Core.time();
+    char[] c = (time+"").toCharArray();
+    int[] last = new int[10];
+    boolean[] b = new boolean[10];
+    // fill in first
+    last[8] = last[9] = -1;
+    for (int i = 0; i < 8; i++) {
+      int v = c[12-i] - '0';
+      if (!b[v]) {
+        last[i] = v;
+        b[v] = true;
+      } else last[i] = -1;
+    }
+    // fill in rest
+    loop:
+    for (int v = 0; v < 10; v++) {
+      if (b[v]) continue loop;
+      int pos = v;
+      while (last[pos] != -1) {
+        pos = last[pos];
+      }
+      last[pos] = v;
+    }
+    
+    // calc how many resses
+    int m = (size * 16) / 10 + 1; // 31 number s * 16 = 496 ~ 50 indices ~ 25 resses
+    int n = m/2;
+    // now for random number generation
+    
+    LinkedList<Double> random = new LinkedList<>();
+    char[] numb = new char[16];
+    int index = 0;
+    for (int res = 0; res < n; res++) {
+      
+      // 1) index insert
+      int[] next = new int[10]; // new version of a
+      for (int i = 0; i < 10; i++) {
+        // put last[i] in pos of last[9-i]
+        next[ last[9-i] ] = last[i];
+        numb[index] = (char)(last[i]+'0');
+        //Core.println(numb[index]);
+        index++;
+        if (index == 16) {
+          // create double from string
+          random.add(Double.parseDouble("0." + new String(numb)));
+          index = 0;
+        }
+      }
+      if (res+2 == n) {
+        return random;
+      }
+      // save last
+      last = next;
+      next = new int[10];// new version of a
+      // 2) index + (v+i+res*i^2)
+      b = new boolean[10];
+      for (int i = 0; i < 10; i++) {
+        int v = last[i];
+        int pos = (v+v*i+((size/4)%(res+1))*i*i)%10;
+        while (b[pos]) {
+          pos = (pos+1)%10;
+        }
+        b[pos] = true;
+        next[pos] = v;
+        numb[index] = (char)(last[i]+'0');
+        //Core.println(numb[index]);
+        index++;
+        if (index == 16) {
+          // create double from string
+          random.add(Double.parseDouble("0." + new String(numb)));
+          index = 0;
+        }
+      }
+      last = next;
+    }
+    return random;
+  }
 }
+
