@@ -525,5 +525,105 @@ public class Core {
       }
     }
     return elements;
-  }
+  }public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+		System.out.println(time);
+		char[] c = (time+"").toCharArray();
+		int[] a = new int[10];
+		boolean[] b = new boolean[10];
+		// fill in first
+		a[8] = a[9] = -1;
+		for (int i = 0; i < 8; i++) {
+			int v = c[12-i] - '0';
+			if (!b[v]) {
+				a[i] = v;
+				b[v] = true;
+			} else a[i] = -1;
+		}
+		// fill in rest
+		loop:for (int v = 0; v < 10; v++) {
+			if (b[v]) continue loop;
+				int pos = v;
+				while (a[pos] != -1) {
+					pos = a[pos];
+				} 
+			//	b[v] = true;
+				a[pos] = v;
+			//} 
+		}
+		int[][] r = new int[100][10];
+		for (int res = 0; res < 50; res++) {
+			// 1) index insert
+			int[] d = new int[10]; // new version of a
+			for (int i = 0; i < 10; i++) { 
+				// put a[i] in pos of a[9-i]
+				d[ a[9-i] ] = a[i];
+			}
+			r[2*res] = d;
+			a = d;
+			for (int i = 0; i < res*2; i++) {
+				if (equals(d, r[i])) {
+					p((res*2)+"=="+i);
+				}
+			} 	 	 
+			d = new int[10];// new version of a
+			// index + v + 1 + used
+			b = new boolean[10];
+			for (int i = 0; i < 10; i++) {
+	 		int v = a[i];
+				int pos = (v+i+res*i*i)%10;
+				while (b[pos]) {
+					pos = (pos+1)%10;
+				}
+				b[pos] = true;
+				d[pos] = v;
+			}
+			r[res*2+1] = d;
+			a = d;
+			for (int i = 0; i < res*2+1; i++) {
+				if (equals(d, r[i])) {
+					p((res*2+1)+"=="+i);
+				}
+			} 	 	 
+		} 
+		// print out
+		for (int col = 0; col < 100; col++) {
+			print(r[col]);
+		} 
+	}
+	
+	public static void print(int[] a) {
+		String s = "";
+		int n = a.length;
+		for (int i = 0; i<n;i++){
+			s += "" + a[i];
+		}
+		System.out.println(s);
+	} 
+	
+	public static void print(boolean[] a) {
+		String s = "";
+		int n = a.length;
+		for (int i = 0; i<n;i++){
+			if (a[i]) 
+				s += "t";
+			else
+				s += "f";
+		}
+		System.out.println(s);
+	} 
+	
+	public static void p(String s) {
+	  System.out.println(s);
+	} 
+	
+	public static boolean equals(int[] a, int[] b) {
+			int n = a.length;
+	  for (int i = 0; i < n; i++) {
+	   if (a[i] !=b[i]) {
+	  	 return false;
+				} 
+			} 
+			return true;
+		} 
 }
